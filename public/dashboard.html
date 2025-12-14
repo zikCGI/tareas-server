@@ -25,7 +25,7 @@
 <pre id="vdesc"></pre>
 
 <h4>Tu respuesta</h4>
-<textarea id="respuesta" placeholder="Escribe tu código aquí"></textarea><br>
+<textarea id="respuesta"></textarea><br>
 <button onclick="responder()">Enviar respuesta</button>
 </div>
 
@@ -35,22 +35,20 @@ const role=localStorage.getItem("role");
 if(!user)location="index.html";
 
 if(role==="admin"){
- document.getElementById("adminPanel").style.display="block";
+ adminPanel.style.display="block";
 }
 
 let tareaActual=null;
 
-fetch("/tasks")
- .then(r=>r.json())
- .then(t=>{
-  lista.innerHTML="";
-  t.forEach(x=>{
-   let li=document.createElement("li");
-   li.textContent=x.titulo;
-   li.onclick=()=>ver(x);
-   lista.appendChild(li);
-  });
+fetch("/tasks").then(r=>r.json()).then(t=>{
+ lista.innerHTML="";
+ t.forEach(x=>{
+  let li=document.createElement("li");
+  li.textContent=x.titulo;
+  li.onclick=()=>ver(x);
+  lista.appendChild(li);
  });
+});
 
 function ver(t){
  tareaActual=t;
@@ -63,7 +61,7 @@ function ver(t){
 function crear(){
  fetch("/tasks",{method:"POST",headers:{"Content-Type":"application/json"},
  body:JSON.stringify({
-  user:user,
+  role:role,
   titulo:titulo.value,
   descripcion:descripcion.value
  })}).then(r=>r.json()).then(d=>{

@@ -1,3 +1,8 @@
+#!/bin/bash
+
+echo "=== FIX AUTORIZACIÓN REAL ==="
+
+cat > server.js << 'EOF'
 const express=require("express");
 const fs=require("fs");
 const cors=require("cors");
@@ -85,3 +90,97 @@ app.post("/tasks/respond",(req,res)=>{
 
 const PORT=process.env.PORT||3000;
 app.listen(PORT,()=>console.log("SERVER OK",PORT));
+EOF
+
+# ---------- FRONTEND ----------
+cat > public/dashboard.html << 'EOF'
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Tareas</title>
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<h2>Tareas</h2>
+
+<div id="adminPanel" style="display:none">
+<h3>Crear tarea (ADMIN)</h3>
+<input id="titulo" placeholder="Título"><br>
+<textarea id="descripcion" placeholder="Descripción / Enunciado"></textarea><br>
+<button onclick="crear()">Crear tarea</button>
+<hr>
+</div>
+
+<ul id="lista"></ul>
+
+<div id="detalle" style="display:none">
+<hr>
+<h3 id="vtitulo"></h3>
+<pre id="vdesc"></pre>
+
+<h4>Tu respuesta</h4>
+<textarea id="respuesta"></textarea><br>
+<button onclick="responder()">Enviar respuesta</button>
+</div>
+
+<script>
+const user=localStorage.getItem("user");
+const role=localStorage.getItem("role");
+if(!user)location="index.html";
+
+if(role==="admin"){
+ adminPanel.style.display="block";
+}
+
+let tareaActual=null;
+
+fetch("/tasks").then(r=>r.json()).then(t=>{
+ lista.innerHTML="";
+ t.forEach(x=>{
+  let li=document.createElement("li");
+  li.textContent=x.titulo;
+  li.onclick=()=>ver(x);
+  lista.appendChild(li);
+ });
+});
+
+function ver(t){
+ tareaActual=t;
+ detalle.style.display="block";
+ vtitulo.textContent=t.titulo;
+ vdesc.textContent=t.descripcion;
+ respuesta.value="";
+}
+
+function crear(){
+ fetch("/tasks",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({
+  role:role,
+  titulo:titulo.value,
+  descripcion:descripcion.value
+ })}).then(r=>r.json()).then(d=>{
+  if(d.error)return alert(d.error);
+  location.reload();
+ });
+}
+
+function responder(){
+ if(!tareaActual)return alert("Selecciona una tarea");
+ fetch("/tasks/respond",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({
+  taskId:tareaActual.id,
+  user:user,
+  respuesta:respuesta.value
+ })}).then(()=>alert("Respuesta enviada"));
+}
+</script>
+
+</body>
+</html>
+EOF
+
+echo "=== FIX AUTORIZACIÓN COMPLETADO ==="
+echo "Ejecuta:"
+echo "git add . && git commit -m \"fix auth real\" && git push"
