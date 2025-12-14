@@ -13,20 +13,21 @@
 <h3>Crear tarea (ADMIN)</h3>
 <input id="titulo" placeholder="Título"><br>
 <textarea id="descripcion" placeholder="Descripción / Enunciado"></textarea><br>
-<button onclick="crear()">Crear</button>
+<button onclick="crear()">Crear tarea</button>
 <hr>
 </div>
 
 <ul id="lista"></ul>
 
+<div id="detalle" style="display:none">
 <hr>
-
 <h3 id="vtitulo"></h3>
 <pre id="vdesc"></pre>
 
-<h4>Tu respuesta:</h4>
+<h4>Tu respuesta</h4>
 <textarea id="respuesta" placeholder="Escribe tu código aquí"></textarea><br>
 <button onclick="responder()">Enviar respuesta</button>
+</div>
 
 <script>
 const user=localStorage.getItem("user");
@@ -39,17 +40,21 @@ if(role==="admin"){
 
 let tareaActual=null;
 
-fetch("/tasks").then(r=>r.json()).then(t=>{
- t.forEach(x=>{
-  let li=document.createElement("li");
-  li.textContent=x.titulo;
-  li.onclick=()=>ver(x);
-  lista.appendChild(li);
+fetch("/tasks")
+ .then(r=>r.json())
+ .then(t=>{
+  lista.innerHTML="";
+  t.forEach(x=>{
+   let li=document.createElement("li");
+   li.textContent=x.titulo;
+   li.onclick=()=>ver(x);
+   lista.appendChild(li);
+  });
  });
-});
 
 function ver(t){
  tareaActual=t;
+ detalle.style.display="block";
  vtitulo.textContent=t.titulo;
  vdesc.textContent=t.descripcion;
  respuesta.value="";
@@ -61,7 +66,10 @@ function crear(){
   user:user,
   titulo:titulo.value,
   descripcion:descripcion.value
- })}).then(()=>location.reload());
+ })}).then(r=>r.json()).then(d=>{
+  if(d.error)return alert(d.error);
+  location.reload();
+ });
 }
 
 function responder(){

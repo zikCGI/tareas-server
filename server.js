@@ -11,10 +11,13 @@ const ROOT_USER="Zik";
 const ROOT_PASS="N4v32mbr2";
 
 function readTasks(){
- return JSON.parse(fs.readFileSync("./tasks.json","utf8"));
+ if(!fs.existsSync("tasks.json")){
+  fs.writeFileSync("tasks.json",JSON.stringify({tareas:[]},null,2));
+ }
+ return JSON.parse(fs.readFileSync("tasks.json","utf8"));
 }
-function saveTasks(t){
- fs.writeFileSync("./tasks.json",JSON.stringify(t,null,2));
+function saveTasks(data){
+ fs.writeFileSync("tasks.json",JSON.stringify(data,null,2));
 }
 
 app.get("/",(req,res)=>{
@@ -27,7 +30,7 @@ app.post("/login",(req,res)=>{
  if(user===ROOT_USER && pass===ROOT_PASS){
   return res.json({user:"Zik",role:"admin"});
  }
- const users=JSON.parse(fs.readFileSync("./users.json","utf8"));
+ const users=JSON.parse(fs.readFileSync("users.json","utf8"));
  if(!users[user]||users[user].pass!==pass){
   return res.status(401).json({error:"Credenciales incorrectas"});
  }
@@ -38,10 +41,10 @@ app.post("/login",(req,res)=>{
 app.post("/register",(req,res)=>{
  const {user,pass}=req.body;
  if(user===ROOT_USER)return res.status(403).json({error:"Usuario reservado"});
- const users=JSON.parse(fs.readFileSync("./users.json","utf8"));
+ const users=JSON.parse(fs.readFileSync("users.json","utf8"));
  if(users[user])return res.status(400).json({error:"Usuario existe"});
  users[user]={pass,role:"user"};
- fs.writeFileSync("./users.json",JSON.stringify(users,null,2));
+ fs.writeFileSync("users.json",JSON.stringify(users,null,2));
  res.json({ok:true});
 });
 
@@ -65,13 +68,13 @@ app.post("/tasks",(req,res)=>{
  res.json({ok:true});
 });
 
-// RESPONDER TAREA
+// RESPONDER
 app.post("/tasks/respond",(req,res)=>{
  const {taskId,user,respuesta}=req.body;
  const data=readTasks();
- const tarea=data.tareas.find(t=>t.id===taskId);
- if(!tarea)return res.status(404).json({error:"Tarea no existe"});
- tarea.respuestas.push({user,respuesta});
+ const t=data.tareas.find(x=>x.id===taskId);
+ if(!t)return res.status(404).json({error:"Tarea no existe"});
+ t.respuestas.push({user,respuesta});
  saveTasks(data);
  res.json({ok:true});
 });
