@@ -1,41 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Tareas</title>
+<meta charset="UTF-8">
+<title>Tareas</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Mis tareas</h2>
-
-  <ul id="lista"></ul>
-
-  <hr>
-
-  <h3 id="titulo"></h3>
-  <p id="descripcion"></p>
-  <p id="nota"></p>
-
+<h2>Tareas</h2>
+<ul id="lista"></ul>
+<h3 id="titulo"></h3>
+<p id="desc"></p>
+<p id="nota"></p>
 <script>
-const user = localStorage.getItem("user");
-if (!user) location = "index.html";
-
-fetch("/tasks")
-  .then(r => r.json())
-  .then(tareas => {
-    tareas.forEach(t => {
-      const li = document.createElement("li");
-      li.textContent = t.titulo;
-      li.style.cursor = "pointer";
-      li.onclick = () => mostrar(t);
-      lista.appendChild(li);
-    });
-  });
-
-function mostrar(t) {
-  titulo.textContent = t.titulo;
-  descripcion.textContent = t.descripcion;
-  nota.textContent = "Nota: " + t.nota;
-}
+if(!localStorage.getItem("user"))location="index.html";
+fetch("/tasks").then(r=>r.json()).then(t=>{
+ t.forEach(x=>{
+  let li=document.createElement("li");
+  li.textContent=x.titulo;
+  li.onclick=()=>{titulo.textContent=x.titulo;desc.textContent=x.descripcion;nota.textContent="Nota: "+x.nota;}
+  lista.appendChild(li);
+ });
+});
 </script>
 </body>
 </html>

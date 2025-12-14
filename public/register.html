@@ -1,35 +1,25 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Registro</title>
+<meta charset="UTF-8">
+<title>Registro</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Registro</h2>
-
-  <input id="user" placeholder="Usuario"><br><br>
-  <input id="pass" type="password" placeholder="Contraseña"><br><br>
-
-  <button onclick="register()">Crear cuenta</button>
-
-  <p><a href="index.html">Volver</a></p>
-
+<h2>Registro</h2>
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
+<button onclick="register()">Crear</button>
+<p><a href="index.html">Volver</a></p>
 <script>
-function register() {
-  fetch("/register", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user: user.value,
-      pass: pass.value
-    })
-  })
-  .then(r => r.json())
-  .then(d => {
-    if (d.error) return alert(d.error);
-    alert("Cuenta creada");
-    window.location = "index.html";
-  });
+function register(){
+ fetch("/register",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({user:user.value,pass:pass.value})})
+ .then(r=>r.json()).then(d=>{
+  if(d.error)return alert(d.error);
+  alert("Cuenta creada");
+  location="index.html";
+ });
 }
 </script>
 </body>

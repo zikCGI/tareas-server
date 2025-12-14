@@ -1,38 +1,26 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="UTF-8">
-  <title>Login</title>
+<meta charset="UTF-8">
+<title>Login</title>
+<link rel="stylesheet" href="style.css">
 </head>
 <body>
-  <h2>Login</h2>
-
-  <input id="user" placeholder="Usuario"><br><br>
-  <input id="pass" type="password" placeholder="Contraseña"><br><br>
-
-  <button onclick="login()">Entrar</button>
-
-  <p>
-    ¿No tienes cuenta?
-    <a href="register.html">Registrarse</a>
-  </p>
-
+<h2>Login</h2>
+<input id="user" placeholder="Usuario">
+<input id="pass" type="password" placeholder="Contraseña">
+<button onclick="login()">Entrar</button>
+<p><a href="register.html">Registrarse</a></p>
 <script>
-function login() {
-  fetch("/login", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      user: user.value,
-      pass: pass.value
-    })
-  })
-  .then(r => r.json())
-  .then(d => {
-    if (d.error) return alert(d.error);
-    localStorage.setItem("user", user.value);
-    window.location = "dashboard.html";
-  });
+function login(){
+ fetch("/login",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({user:user.value,pass:pass.value})})
+ .then(r=>r.json()).then(d=>{
+  if(d.error)return alert(d.error);
+  localStorage.setItem("user",d.user);
+  localStorage.setItem("role",d.role);
+  location="dashboard.html";
+ });
 }
 </script>
 </body>
