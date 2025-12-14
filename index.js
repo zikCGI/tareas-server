@@ -1,3 +1,4 @@
+const path = require("path");
 const express = require("express");
 const fs = require("fs");
 const cors = require("cors");
@@ -5,10 +6,12 @@ const cors = require("cors");
 const app = express();
 app.use(express.json());
 app.use(cors());
+app.use(express.static("public"));
 
 const USERS_FILE = "./users.json";
 const TASKS_FILE = "./tasks.json";
 
+// ---------- helpers ----------
 function readUsers() {
   return JSON.parse(fs.readFileSync(USERS_FILE));
 }
@@ -21,7 +24,7 @@ function saveTasks(data) {
   fs.writeFileSync(TASKS_FILE, JSON.stringify(data, null, 2));
 }
 
-// 🔐 LOGIN
+// ---------- LOGIN ----------
 app.post("/login", (req, res) => {
   const { user, pass } = req.body;
   const users = readUsers();
@@ -33,13 +36,36 @@ app.post("/login", (req, res) => {
   res.json({ role: users[user].role });
 });
 
-// 📄 VER TAREAS (todos)
+// ---------- REGISTER ----------
+app.post("/register", (req, res) => {
+  const { user, pass } = req.body;
+
+  if (!user || !pass) {
+    return res.status(400).json({ error: "Datos incompletos" });
+  }
+
+  const users = readUsers();
+
+  if (users[user]) {
+    return res.status(400).json({ error: "Usuario ya existe" });
+  }
+
+  users[user] = {
+    pass,
+    role: "user"
+  };
+
+  fs.writeFileSync(USERS_FILE, JSON.stringify(users, null, 2));
+  res.json({ ok: true });
+});
+
+// ---------- VER TAREAS ----------
 app.get("/tasks", (req, res) => {
   const tasks = readTasks();
   res.json(tasks.tareas);
 });
 
-// ➕ AGREGAR TAREA (solo admin)
+// ---------- AGREGAR TAREA (ADMIN) ----------
 app.post("/tasks", (req, res) => {
   const { user, titulo, descripcion, nota } = req.body;
 
@@ -55,6 +81,10 @@ app.post("/tasks", (req, res) => {
 });
 
 const PORT = process.env.PORT || 3000;
+app.get("/", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "index.html"));
+});
+
 app.listen(PORT, () => {
   console.log("Servidor funcionando en puerto", PORT);
 });

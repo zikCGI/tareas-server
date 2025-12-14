@@ -30,7 +30,6 @@ function login() {
   .then(r => r.json())
   .then(d => {
     if (d.error) return alert(d.error);
-
     localStorage.setItem("user", user.value);
     window.location = "dashboard.html";
   });

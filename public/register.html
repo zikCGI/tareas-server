@@ -12,7 +12,7 @@
 
   <button onclick="register()">Crear cuenta</button>
 
-  <p><a href="index.html">Volver al login</a></p>
+  <p><a href="index.html">Volver</a></p>
 
 <script>
 function register() {
@@ -27,8 +27,7 @@ function register() {
   .then(r => r.json())
   .then(d => {
     if (d.error) return alert(d.error);
-
-    alert("Cuenta creada correctamente");
+    alert("Cuenta creada");
     window.location = "index.html";
   });
 }
